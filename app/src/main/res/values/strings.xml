@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Steganographer</string>
+    <string name="nav_recents">Recents</string>
+    <string name="nav_encode">Encode</string>
+    <string name="nav_decode">Decode</string>
+    <string name="card_menu_remove">Remove</string>
+    <string name="card_menu_share">Share</string>
+    <string name="encode_edit_text">Enter text to Encode.</string>
+    <string name="menu_encode_ok">Okay</string>
+    <string name="encode_image_description">Encoding image</string>
+    <string name="menu_decode_save">Save</string>
+    <string name="menu_encode_delete">Delete</string>
+    <string name="menu_encode_share">Share</string>
+    <string name="menu_decode_copy">Copy</string>
+    <string name="encode_intent_share">Share Encoded image: </string>
+    <string name="encode_saved">Encoded Image Saved</string>
+    <string name="encode_view">View</string>
+</resources>
