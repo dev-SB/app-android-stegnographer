@@ -25,6 +25,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,6 +46,7 @@ public class DecodeFragment extends Fragment
         private static final String DECODED_TEXT_FILE_NAME = "Decodedtxt";
         private static String decodedTextFilePath = null;
         private static String encodedImageName = null;
+        private ProgressBar mProgressBar;
 
         public DecodeFragment()
             {
@@ -70,6 +72,8 @@ public class DecodeFragment extends Fragment
         public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
             {
                 super.onViewCreated(view, savedInstanceState);
+                decodeTextView = view.findViewById(R.id.decode_text);
+                mProgressBar=view.findViewById(R.id.progressBarDecode);
             }
 
         @Override
@@ -103,7 +107,7 @@ public class DecodeFragment extends Fragment
         public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
             {
                 View view = inflater.inflate(R.layout.layout_decode, container, false);
-                decodeTextView = view.findViewById(R.id.decode_text);
+
                 decodeFab = view.findViewById(R.id.decode_fab);
                 decodeFab.setOnClickListener(new View.OnClickListener()
                     {
@@ -112,6 +116,7 @@ public class DecodeFragment extends Fragment
                             {
                                 setHasOptionsMenu(true);
                                 decodeTextView.setText("");
+
                                 searchImage();
                             }
                     });
@@ -174,9 +179,16 @@ public class DecodeFragment extends Fragment
                 protected void onPostExecute(String s)
                     {
                         super.onPostExecute(s);
+                        mProgressBar.setVisibility(View.GONE);
                         decodedTextMainScreen = s;
                         decodeTextView.setText(s);
 
+                    }
+
+                @Override
+                protected void onPreExecute()
+                    {
+                        mProgressBar.setVisibility(View.VISIBLE);
                     }
             }
 

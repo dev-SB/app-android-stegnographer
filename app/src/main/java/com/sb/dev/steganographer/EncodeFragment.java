@@ -14,7 +14,6 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -26,6 +25,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import java.io.File;
@@ -36,7 +36,7 @@ import java.util.Calendar;
 public class EncodeFragment extends Fragment
     {
         private Context thisContext;
-        private TextInputLayout mEncodText;
+        private TextInputLayout mEncodeText;
         private static final int REQUEST_CODE = 402;
         private ImageView mEncodeImageView;
         private Uri uri = null;
@@ -46,7 +46,8 @@ public class EncodeFragment extends Fragment
         private static Bitmap encodedBitmapImage = null;
         private static File encodedImageFile = null;
         public static final String APP_NAME = "Steganographer";
-        private Snackbar viewSnackBar;
+        private ProgressBar mProgressBar;
+
 
         public EncodeFragment()
             {
@@ -80,7 +81,7 @@ public class EncodeFragment extends Fragment
                     {
                         case R.id.menu_encode_ok:
                             createParam();
-                            Toast.makeText(thisContext, mEncodText.getEditText().getText().toString(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(thisContext, mEncodeText.getEditText().getText().toString(), Toast.LENGTH_SHORT).show();
                             break;
                         case R.id.menu_encode_delete:
                             Toast.makeText(thisContext, "Delete clicked", Toast.LENGTH_SHORT).show();
@@ -134,6 +135,7 @@ public class EncodeFragment extends Fragment
                 final FloatingActionButton embedFab = view.findViewById(R.id.encode_fab);
 
 
+
                 embedFab.setOnClickListener(new View.OnClickListener()
                     {
                         @Override
@@ -141,7 +143,8 @@ public class EncodeFragment extends Fragment
                             {
                                 Toast.makeText(thisContext, "FAB clicked", Toast.LENGTH_SHORT).show();
                                 setHasOptionsMenu(true);
-
+                                mEncodeImageView.setVisibility(View.VISIBLE);
+                                mEncodeText.setVisibility(View.VISIBLE);
                                 searchImage();
                             }
                     });
@@ -152,9 +155,9 @@ public class EncodeFragment extends Fragment
         @Override
         public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
             {
-                mEncodText = view.findViewById(R.id.encode_text);
+                mEncodeText = view.findViewById(R.id.encode_text);
                 mEncodeImageView = view.findViewById(R.id.encode_image);
-
+                mProgressBar=view.findViewById(R.id.progressBarEncode);
                 super.onViewCreated(view, savedInstanceState);
             }
 
@@ -192,7 +195,7 @@ public class EncodeFragment extends Fragment
         private void createParam()
             {
                 ParamsForAsync params = null;
-                String text = mEncodText.getEditText().getText().toString();
+                String text = mEncodeText.getEditText().getText().toString();
                 if (uri.toString().isEmpty())
                     {
                         Toast.makeText(thisContext, "Please Select Image.", Toast.LENGTH_SHORT).show();
@@ -255,6 +258,12 @@ public class EncodeFragment extends Fragment
                         checkPermission();
 
                     }
+
+                @Override
+                protected void onPreExecute()
+                    {
+                        mProgressBar.setVisibility(View.VISIBLE);
+                    }
             }
 
         private void checkPermission()
@@ -262,11 +271,13 @@ public class EncodeFragment extends Fragment
                 if (ContextCompat.checkSelfPermission(thisContext, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                         != PackageManager.PERMISSION_GRANTED)
                     {
+                    mProgressBar.setVisibility(View.GONE);
                         Log.d("Permission", "asking for permissions");
 
                         requestPermissions(new String[]{
                                 Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE);
                         //requestPermissions should be used with fragment instead of AppCompat.requestPermissions
+
                         Toast.makeText(thisContext, "Permission asked", Toast.LENGTH_SHORT).show();
                     } else
                     {
@@ -288,6 +299,7 @@ public class EncodeFragment extends Fragment
                             {
                                 Log.d("Permission", "Permission Granted");
                                 Toast.makeText(thisContext, "Permission Granted", Toast.LENGTH_SHORT).show();
+                                mProgressBar.setVisibility(View.VISIBLE);
                                 saveEncodedImage();
                             } else
                             {
@@ -322,9 +334,16 @@ public class EncodeFragment extends Fragment
                     }
 
                 @Override
+                protected void onPreExecute()
+                    {
+                        super.onPreExecute();
+
+                    }
+
+                @Override
                 protected void onPostExecute(Void aVoid)
                     {
-
+                        mProgressBar.setVisibility(View.GONE);
                     }
             }
 
