@@ -5,20 +5,33 @@
     android:id="@+id/menu_encode_ok"
     android:title="@string/menu_encode_ok"
     android:icon="@drawable/ic_done_black_24dp"
-    app:showAsAction="always"
+    app:showAsAction="ifRoom"
+    android:orderInCategory="1"
+
 
     />
-    <item android:id="@+id/menu_encode_delete"
-        android:title="@string/menu_encode_delete"
-        android:icon="@drawable/ic_delete_black_24dp"
-        app:showAsAction="always"
-
-        />
     <item
         android:id="@+id/menu_encode_share"
         android:title="@string/menu_encode_share"
         android:icon="@drawable/ic_share_black_24dp"
-        app:showAsAction="always"
+        app:showAsAction="ifRoom"
+        android:orderInCategory="2"
 
         />
+    <item
+        android:id="@+id/menu_encode_clear"
+        android:title="@string/encode_menu_clear"
+        android:icon="@drawable/ic_clear_black_24dp"
+        app:showAsAction="ifRoom"
+        android:orderInCategory="3"
+        />
+    <item android:id="@+id/menu_encode_delete"
+        android:title="@string/menu_encode_delete"
+        android:icon="@drawable/ic_delete_black_24dp"
+        app:showAsAction="ifRoom"
+        android:orderInCategory="4"
+
+
+        />
+
 </menu>

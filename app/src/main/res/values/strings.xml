@@ -15,4 +15,18 @@
     <string name="encode_intent_share">Share Encoded image: </string>
     <string name="encode_saved">Encoded Image Saved</string>
     <string name="encode_view">View</string>
+    <string name="title_activity_main2">Main2Activity</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="encode_shared_preferences">com.sb.dev.steganographer.encode_shared_preferences</string>
+    <string name="image_uri_key">image_uri</string>
+    <string name="encode_text_key">encode_text</string>
+    <string name="uri_condition">is_uri_null_key</string>
+
+    <string name="title_activity_fullscreen">FullscreenActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="decoded_text">Decoded Text will Appear Here</string>
+    <string name="encode_menu_clear">Clear</string>
 </resources>

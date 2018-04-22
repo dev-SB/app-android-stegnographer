@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -47,6 +48,7 @@ public class EncodeFragment extends Fragment
         private static File encodedImageFile = null;
         public static final String APP_NAME = "Steganographer";
         private ProgressBar mProgressBar;
+        Drawable placeHolderImage = null;
 
 
         public EncodeFragment()
@@ -67,73 +69,16 @@ public class EncodeFragment extends Fragment
                     }
             }
 
-        @Override
-        public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
-            {
-                inflater.inflate(R.menu.menu_encode, menu);
-                super.onCreateOptionsMenu(menu, inflater);
-            }
-
-        @Override
-        public boolean onOptionsItemSelected(MenuItem item)
-            {
-                switch (item.getItemId())
-                    {
-                        case R.id.menu_encode_ok:
-                            createParam();
-                            Toast.makeText(thisContext, mEncodeText.getEditText().getText().toString(), Toast.LENGTH_SHORT).show();
-                            break;
-                        case R.id.menu_encode_delete:
-                            Toast.makeText(thisContext, "Delete clicked", Toast.LENGTH_SHORT).show();
-                            deleteEncodedImage();
-                            break;
-                        case R.id.menu_encode_share:
-                            Toast.makeText(thisContext, "Share Button Clicked", Toast.LENGTH_SHORT).show();
-                            shareImage();
-                            break;
-                    }
-
-                return super.onOptionsItemSelected(item);
-            }
-
-        private void deleteEncodedImage()
-            {
-                try
-                    {
-                        if (encodedImageFile.delete())
-                            {
-                                Toast.makeText(thisContext, "Encoded Image Deleted", Toast.LENGTH_SHORT).show();
-                            }
-
-                    } catch (Exception e)
-                    {
-                        e.printStackTrace();
-                    }
-
-            }
-
-        private void shareImage()
-            {
-                Intent shareIntent = new Intent();
-                shareIntent.setAction(Intent.ACTION_SEND).putExtra(Intent.EXTRA_STREAM, Uri.fromFile(encodedImageFile));
-                shareIntent.setType("image/png");
-                String title = getResources().getString(R.string.encode_intent_share);
-                Intent appChooser = Intent.createChooser(shareIntent, title);
-                if (shareIntent.resolveActivity(thisContext.getPackageManager()) != null)
-                    {
-                        startActivity(appChooser);
-                    }
-            }
-
-
         @Nullable
         @Override
         public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
             {
                 View view = inflater.inflate(R.layout.layout_encode, container, false);
-
+                mEncodeText = view.findViewById(R.id.encode_text);
+                mEncodeImageView = view.findViewById(R.id.encode_image);
+                mProgressBar = view.findViewById(R.id.progressBarEncode);
+                placeHolderImage = getResources().getDrawable(R.drawable.h, null);
                 final FloatingActionButton embedFab = view.findViewById(R.id.encode_fab);
-
 
 
                 embedFab.setOnClickListener(new View.OnClickListener()
@@ -142,9 +87,9 @@ public class EncodeFragment extends Fragment
                         public void onClick(View view)
                             {
                                 Toast.makeText(thisContext, "FAB clicked", Toast.LENGTH_SHORT).show();
-                                setHasOptionsMenu(true);
-                                mEncodeImageView.setVisibility(View.VISIBLE);
-                                mEncodeText.setVisibility(View.VISIBLE);
+
+                                encodedImageFile = null;
+
                                 searchImage();
                             }
                     });
@@ -155,10 +100,54 @@ public class EncodeFragment extends Fragment
         @Override
         public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
             {
-                mEncodeText = view.findViewById(R.id.encode_text);
-                mEncodeImageView = view.findViewById(R.id.encode_image);
-                mProgressBar=view.findViewById(R.id.progressBarEncode);
+
+                mEncodeText.setEnabled(false);
+
                 super.onViewCreated(view, savedInstanceState);
+            }
+
+        @Override
+        public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
+            {
+                inflater.inflate(R.menu.menu_encode, menu);
+                super.onCreateOptionsMenu(menu, inflater);
+            }
+
+        //TODO:progress bar is behind imageview card
+        @Override
+        public boolean onOptionsItemSelected(MenuItem item)
+            {
+                switch (item.getItemId())
+                    {
+                        case R.id.menu_encode_ok:
+                            createParam();
+
+                            Toast.makeText(thisContext, mEncodeText.getEditText().getText().toString(), Toast.LENGTH_SHORT).show();
+                            mEncodeText.getEditText().setText("");
+                            mEncodeText.setEnabled(false);
+                            break;
+                        case R.id.menu_encode_delete:
+                            Toast.makeText(thisContext, "Delete clicked", Toast.LENGTH_SHORT).show();
+                            deleteEncodedImage();
+                            break;
+                        case R.id.menu_encode_share:
+                            Toast.makeText(thisContext, "Share Button Clicked", Toast.LENGTH_SHORT).show();
+                            shareImage();
+                            break;
+                        case R.id.menu_encode_clear:
+                            clear();
+                            break;
+                    }
+
+                return super.onOptionsItemSelected(item);
+            }
+
+        private void clear()
+            {
+                mEncodeText.getEditText().setText("");
+                mEncodeText.setEnabled(false);
+                mEncodeImageView.setImageDrawable(placeHolderImage);
+
             }
 
         private void searchImage()
@@ -181,15 +170,10 @@ public class EncodeFragment extends Fragment
                                 uri = data.getData();
                                 Log.i("image imported", uri.toString());
                                 displayEncodeImage(uri);
-
+                                setHasOptionsMenu(true);
+                                mEncodeText.setEnabled(true);
                             }
                     }
-            }
-
-        private void displayEncodeImage(Uri uri)
-            {
-                mEncodeImageView.setImageURI(uri);
-
             }
 
         private void createParam()
@@ -223,13 +207,15 @@ public class EncodeFragment extends Fragment
                         this.text = text;
                     }
             }
-
+        //TODO:decode text view formatting
+        //TODO:encode text view file selector
+        //TODO: progress bar for encode fragment
         private class EncodeAsyncTask extends AsyncTask<ParamsForAsync, Void, Bitmap>
             {
                 @Override
                 protected Bitmap doInBackground(ParamsForAsync... paramsForAsyncs)
                     {
-
+                        Bitmap encodedImage = null;
                         Uri uri = paramsForAsyncs[0].imageUri;
                         Log.i("AsyncTask", uri.toString());
 
@@ -244,9 +230,15 @@ public class EncodeFragment extends Fragment
                             {
                                 Log.e("bitmap conversion", e.getMessage() + " bitmap convertion error in doinbackground");
                             }
+                        if (encodeText.length() > (((originalImage.getWidth() * originalImage.getHeight()) - 32) / 8) - 1)//Checks whether image size is large enough to store text provided.
+                            {
+                                //To store data, text length should be less than (number of pixels-32 /8)
 
-                        Bitmap encodedImage = EmbedText.embed(originalImage, encodeText);
-
+                                Toast.makeText(thisContext, "A Bigger Image is required to store this data!!", Toast.LENGTH_SHORT).show();
+                            } else
+                            {
+                                encodedImage = EmbedText.embed(originalImage, encodeText);
+                            }
                         return encodedImage;
                     }
 
@@ -271,7 +263,7 @@ public class EncodeFragment extends Fragment
                 if (ContextCompat.checkSelfPermission(thisContext, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                         != PackageManager.PERMISSION_GRANTED)
                     {
-                    mProgressBar.setVisibility(View.GONE);
+                        mProgressBar.setVisibility(View.GONE);
                         Log.d("Permission", "asking for permissions");
 
                         requestPermissions(new String[]{
@@ -308,10 +300,18 @@ public class EncodeFragment extends Fragment
                     }
             }
 
-        //TODO:save encoded Image on async task
-        //TODO: snack bar with view button
-        //TODO:Dialog to input name from the user
 
+        private void displayEncodeImage(Uri uri)
+            {
+                mEncodeImageView.setImageURI(uri);
+
+            }
+
+
+        //TODO: snack bar with view button
+
+        //TODO: Add shimmer effect
+        //TODO: check if image uri is null otherwise the menu buttons crash the app
         private class SaveAsyncTask extends AsyncTask<File, Void, Void>
             {
                 @Override
@@ -348,7 +348,6 @@ public class EncodeFragment extends Fragment
             }
 
 
-
         private void saveEncodedImage()
             {
                 if (isExtStorageWritable())
@@ -364,7 +363,7 @@ public class EncodeFragment extends Fragment
                         Log.d("Save file path", encodedImageFile.toString());
 
 
-                        AsyncTask save = new SaveAsyncTask().execute(file);
+                        new SaveAsyncTask().execute(file);
 
                         Toast.makeText(thisContext, encodedImageFile.toString(), Toast.LENGTH_SHORT).show();
                         //TODO use path with snack bar
@@ -399,17 +398,64 @@ public class EncodeFragment extends Fragment
 
             }
 
+        private void deleteEncodedImage()
+            {
+                if (encodedImageFile != null)
+                    {
+                        try
+                            {
+                                if (encodedImageFile.delete())
+                                    {
+                                        Toast.makeText(thisContext, "Encoded Image Deleted", Toast.LENGTH_SHORT).show();
+                                        encodedImageFile = null;
+                                    }
+
+                            } catch (Exception e)
+                            {
+                                e.printStackTrace();
+                            }
+                    } else
+                    {
+                        Toast.makeText(thisContext, "First Tap the OK button", Toast.LENGTH_SHORT).show();
+                    }
+            }
+
+        private void shareImage()
+            {
+                if (encodedImageFile != null)
+                    {
+
+
+                        Intent shareIntent = new Intent();
+                        shareIntent.setAction(Intent.ACTION_SEND).putExtra(Intent.EXTRA_STREAM, Uri.fromFile(encodedImageFile));
+                        shareIntent.setType("image/png");
+                        String title = getResources().getString(R.string.encode_intent_share);
+                        Intent appChooser = Intent.createChooser(shareIntent, title);
+                        if (shareIntent.resolveActivity(thisContext.getPackageManager()) != null)
+                            {
+                                startActivity(appChooser);
+                            }
+                    } else
+                    {
+                        Toast.makeText(thisContext, "Image not found", Toast.LENGTH_SHORT).show();
+                    }
+            }
+
+
         @Override
         public void onStop()
             {
                 super.onStop();
-                Log.v("onStop", "onstop called");
+                Log.v("on", "onstop called");
             }
 
+
         @Override
-        public void onPause()
+        public void onStart()
             {
-                super.onPause();
-                Log.v("onPause", "onpause called");
+                super.onStart();
+                Log.v("on", "onstart");
             }
+
+
     }

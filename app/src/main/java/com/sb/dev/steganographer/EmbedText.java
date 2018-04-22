@@ -1,4 +1,5 @@
 package com.sb.dev.steganographer;
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -11,10 +12,11 @@ public class EmbedText
     {
         public static Bitmap embed(Bitmap originalImage1, String text)
             {
-                Bitmap originalImage=originalImage1.copy(Bitmap.Config.ARGB_8888,true);
-                int x = 0, y = 0, asciiValue;//x= x coordinate, y=y coordinate of image starting from top left .
+                Bitmap originalImage = originalImage1.copy(Bitmap.Config.ARGB_8888, true);
+                int x = 0, y = 0, asciiValue, n;//x= x coordinate, y=y coordinate of image starting from top left .
                 final int EXTRACTOR = 0x00000001;//BitMask to extract last bit of character.
-                final int ZEROATLAST=0xfffffffe;
+                final int ZEROATLAST = 0xfffffffe;
+
                 for (int i = 0; i <= text.length(); i++)
                     {
                         if (i < text.length())
@@ -30,13 +32,16 @@ public class EmbedText
 
                                 if (bitValue == 1)
                                     {
-                                        originalImage.setPixel(x, y, originalImage.getPixel(x, y) | EXTRACTOR);//Replaces least significant value of the blue color of the pixel with 1.
+                                        n = originalImage.getPixel(x, y) | EXTRACTOR;
+                                        //Replaces least significant value of the blue color of the pixel with 1.
                                     } else
                                     {
-                                        originalImage.setPixel(x, y, originalImage.getPixel(x, y) & ZEROATLAST);//Replaces least significant value of the blue color of the pixel with 0.
+                                        n = originalImage.getPixel(x, y) & ZEROATLAST;
+                                        //Replaces least significant value of the blue color of the pixel with 0.
                                     }
+                                originalImage.setPixel(x, y, n);
                                 x++;
-                                if (x > originalImage.getWidth())
+                                if (x >= originalImage.getWidth())
                                     {
                                         x = 0;
                                         y++;
@@ -44,7 +49,7 @@ public class EmbedText
                                 asciiValue = asciiValue >> 1;
                             }
                     }
-                Log.d("EmbedText","process completed");
+                Log.d("EmbedText", "process completed");
 
                 return originalImage;
             }

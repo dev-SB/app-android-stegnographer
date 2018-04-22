@@ -4,13 +4,18 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>\
 
-    <color name="primaryColor">#9c27b0</color>
-    <color name="primaryLightColor">#d05ce3</color>
-    <color name="primaryDarkColor">#6a0080</color>
-    <color name="secondaryColor">#ffff00</color>
-    <color name="secondaryLightColor">#ffff5a</color>
-    <color name="secondaryDarkColor">#c7cc00</color>
+    <color name="textViewColor">#E040FB</color>
+    <color name="primaryColor">#673ab7</color>
+    <color name="primaryLightColor">#9a67ea</color>
+    <color name="primaryDarkColor">#320b86</color>
+    <color name="secondaryColor">#76ff03</color>
+    <color name="secondaryLightColor">#b0ff57</color>
+    <color name="secondaryDarkColor">#32cb00</color>
     <color name="primaryTextColor">#ffffff</color>
     <color name="secondaryTextColor">#000000</color>
+<color name="bottomIcon">#BDBDBD</color>
+    <color name="black_overlay">#66000000</color>
 
 </resources>
+
+

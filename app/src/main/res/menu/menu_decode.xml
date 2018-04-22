@@ -4,12 +4,15 @@
     <item android:icon="@drawable/ic_content_copy_black_24dp"
         android:id="@+id/menu_decode_copy"
         android:title="@string/menu_decode_copy"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="always"/>
 <item android:id="@+id/menu_decode_save"
     android:title="@string/menu_decode_save"
     android:icon="@drawable/ic_save_black_24dp"
-    app:showAsAction="ifRoom"
+    app:showAsAction="always"
     />
-
-
+<item android:id="@+id/menu_decode_clear"
+    android:icon="@drawable/ic_clear_black_24dp"
+    android:title="@string/encode_menu_clear"
+    app:showAsAction="always"
+/>
 </menu>

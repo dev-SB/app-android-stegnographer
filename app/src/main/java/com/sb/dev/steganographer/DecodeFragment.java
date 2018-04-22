@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -32,6 +33,8 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 public class DecodeFragment extends Fragment
     {
@@ -39,7 +42,7 @@ public class DecodeFragment extends Fragment
         private Context thisContext;
         private FloatingActionButton decodeFab;
         private Uri uri = null;
-        private TextView decodeTextView;
+        private TextView mDecodeTextView;
         private String decodedTextMainScreen;
         public static final int PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
         private static final String DECODED_TEXT_FILE_FOLDER = "Decoded Text Files";
@@ -72,8 +75,8 @@ public class DecodeFragment extends Fragment
         public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
             {
                 super.onViewCreated(view, savedInstanceState);
-                decodeTextView = view.findViewById(R.id.decode_text);
-                mProgressBar=view.findViewById(R.id.progressBarDecode);
+                mDecodeTextView = view.findViewById(R.id.decode_text);
+                mProgressBar = view.findViewById(R.id.progressBarDecode);
             }
 
         @Override
@@ -89,17 +92,54 @@ public class DecodeFragment extends Fragment
                 switch (item.getItemId())
                     {
                         case R.id.menu_decode_save:
-                            Toast.makeText(thisContext, "Save Clicked", Toast.LENGTH_SHORT).show();
-                            checkPermission();
+                            if (uri != null)
+                                {
+                                    Toast.makeText(thisContext, "Save Clicked", Toast.LENGTH_SHORT).show();
+                                    checkPermission();
+
+                                } else
+                                {
+                                    uriIsNull();
+
+                                }
+                            break;
+                        case R.id.menu_decode_clear:
+                            if (uri != null)
+                                {
+                                    Toast.makeText(thisContext, "Cleared", Toast.LENGTH_SHORT).show();
+                                    clear();
+
+                                } else
+                                {
+                                    uriIsNull();
+
+                                }
                             break;
                         case R.id.menu_decode_copy:
-                            Toast.makeText(thisContext, "Text Copied!", Toast.LENGTH_SHORT).show();
-                            copyDecodedText();
+                            if (uri != null)
+                                {
+                                    Toast.makeText(thisContext, "Text Copied!", Toast.LENGTH_SHORT).show();
+                                    copyDecodedText();
+                                } else
+                                {
+                                    uriIsNull();
+                                }
                             break;
                     }
 
                 return super.onOptionsItemSelected(item);
 
+            }
+
+        private void uriIsNull()
+            {
+                Toast.makeText(thisContext, "Please select an Image", Toast.LENGTH_SHORT).show();
+            }
+
+        private void clear()
+            {
+                mDecodeTextView.setText("");
+                setHasOptionsMenu(false);
             }
 
         @Nullable
@@ -114,8 +154,8 @@ public class DecodeFragment extends Fragment
                         @Override
                         public void onClick(View view)
                             {
-                                setHasOptionsMenu(true);
-                                decodeTextView.setText("");
+
+                                mDecodeTextView.setText("");
 
                                 searchImage();
                             }
@@ -142,6 +182,7 @@ public class DecodeFragment extends Fragment
                             {
                                 uri = data.getData();
                                 Log.i("image imported", uri.toString());
+                                setHasOptionsMenu(true);
                                 new decodeAsyncTask().execute(uri);
                             } else
                             {
@@ -159,13 +200,12 @@ public class DecodeFragment extends Fragment
                         try
                             {
                                 encodedImage = MediaStore.Images.Media.getBitmap(thisContext.getContentResolver(), uris[0]);
-
-                                String temp = uris[0].getLastPathSegment();
-                                int index = temp.lastIndexOf('/');
-                                int endIndex = temp.lastIndexOf('.');
-                                encodedImageName = temp.substring(index + 1, endIndex);
+                                Calendar calendar = Calendar.getInstance();
+                                SimpleDateFormat format = new SimpleDateFormat("yMMd_HHmmss");
+                                encodedImageName = format.format(calendar.getTime());
                                 Log.i("async image uri", encodedImageName);
-                            } catch (IOException e)
+
+                            } catch (Exception e)
                             {
                                 Log.e("Decode asynctask", e.getMessage());
                             }
@@ -181,7 +221,7 @@ public class DecodeFragment extends Fragment
                         super.onPostExecute(s);
                         mProgressBar.setVisibility(View.GONE);
                         decodedTextMainScreen = s;
-                        decodeTextView.setText(s);
+                        mDecodeTextView.setText(s);
 
                     }
 
@@ -192,6 +232,7 @@ public class DecodeFragment extends Fragment
                     }
             }
 
+        //TODO:empty text file in decode
         private void checkPermission()
             {
                 if (ContextCompat.checkSelfPermission(thisContext, Manifest.permission.WRITE_EXTERNAL_STORAGE)
